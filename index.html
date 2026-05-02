@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İlaç Takibi</title>
+<style>
+  :root {
+    --bg: #7B1A1A;
+    --card: rgba(255,255,255,0.1);
+    --card-border: rgba(255,255,255,0.18);
+    --blue: #1A3A8A;
+    --blue-light: #3A5FBF;
+    --blue-accent: #6699FF;
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --font: 'Georgia', serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #5a1010; display: flex; justify-content: center; }
+
+  .app {
+    padding: 1rem;
+    width: 100%;
+    max-width: 380px;
+    background: var(--bg);
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    position: relative;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    padding: 3px;
+    margin-bottom: 1.25rem;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: rgba(255,255,255,0.55);
+  }
+  .tab-btn.active {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+  }
+
+  /* ── HEADER ── */
+  .header { text-align: center; margin-bottom: 1.25rem; padding-top: 0.5rem; }
+  .header h1 { font-size: 20px; font-weight: 500; color: #fff; }
+  .header p { font-size: 13px; color: rgba(255,255,255,0.65); margin-top: 4px; }
+
+  /* ── STATUS ── */
+  .status-card {
+    background: rgba(0,0,0,0.25);
+    border-radius: var(--radius-lg);
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 1rem;
+  }
+  .status-count { font-size: 24px; font-weight: 500; color: #fff; display: block; }
+
+  .progress-bar-wrap {
+    background: rgba(0,0,0,0.25);
+    border-radius: 100px;
+    height: 6px;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--blue-accent);
+    border-radius: 100px;
+    transition: width 0.3s ease;
+  }
+
+  .all-done {
+    text-align: center;
+    padding: 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: var(--radius-lg);
+    border: 0.5px solid rgba(255,255,255,0.3);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+    padding-left: 2px;
+  }
+
+  /* ── PILL CARDS ── */
+  .pill-group { margin-bottom: 1.25rem; }
+  .pill-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card);
+    border: 0.5px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .pill-card:hover { background: rgba(255,255,255,0.15); }
+  .pill-card.taken { background: var(--blue); border-color: var(--blue-light); }
+
+  .check-circle {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .pill-card.taken .check-circle { background: var(--blue-light); border-color: var(--blue-accent); }
+  .checkmark {
+    width: 10px; height: 7px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translateY(-1px);
+    display: none;
+  }
+  .pill-card.taken .checkmark { display: block; }
+  .pill-name { font-size: 15px; font-weight: 500; color: #fff; }
+  .pill-dose { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+  .pill-card.taken .pill-dose { color: rgba(255,255,255,0.75); }
+
+  /* ── ALARM ── */
+  .alarm-banner {
+    display: none;
+    background: #fff;
+    color: var(--bg);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 500;
+    font-size: 15px;
+    animation: pulse 1s infinite alternate;
+  }
+  @keyframes pulse { from { opacity: 1; } to { opacity: 0.7; } }
+
+  .alarm-info { display: flex; gap: 8px; margin-bottom: 1.25rem; }
+  .alarm-badge {
+    flex: 1;
+    background: rgba(0,0,0,0.2);
+    border: 0.5px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius-md);
+    padding: 8px 10px;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+  }
+  .alarm-badge strong { display: block; font-size: 15px; font-weight: 500; color: #fff; }
+
+  /* ── BUTTONS ── */
+  .btn-row { display: flex; gap: 8px; margin-top: 4px; }
+  .save-btn {
+    flex: 1; padding: 11px;
+    border: none; border-radius: var(--radius-md);
+    background: var(--blue); color: #fff;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .save-btn:hover { background: #254fba; }
+  .reset-btn {
+    flex: 1; padding: 11px;
+    border: 0.5px solid rgba(255,255,255,0.3);
+    border-radius: var(--radius-md);
+    background: transparent; color: rgba(255,255,255,0.65);
+    font-size: 13px; cursor: pointer;
+  }
+  .reset-btn:hover { background: rgba(255,255,255,0.1); }
+
+  .saved-badge {
+    display: none;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 8px;
+  }
+
+  /* ── CONFIRM OVERLAY ── */
+  .confirm-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .confirm-overlay.show { display: flex; }
+  .confirm-box {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin: 1rem;
+    text-align: center;
+    max-width: 300px; width: 100%;
+  }
+  .confirm-box p { font-size: 15px; font-weight: 500; color: var(--bg); margin-bottom: 4px; }
+  .confirm-box small { font-size: 12px; color: #888; }
+  .confirm-btns { display: flex; gap: 8px; margin-top: 16px; }
+  .confirm-yes {
+    flex: 1; padding: 10px;
+    background: var(--bg); color: #fff;
+    border: none; border-radius: var(--radius-md);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+  }
+  .confirm-no {
+    flex: 1; padding: 10px;
+    background: #eee; color: #333;
+    border: none; border-radius: var(--radius-md);
+    font-size: 13px; cursor: pointer;
+  }
+
+  /* ══════════════════════════════
+     GEÇMİŞ SAYFASI
+  ══════════════════════════════ */
+  #historyView { display: none; }
+
+  .history-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255,255,255,0.4);
+    font-size: 14px;
+  }
+  .history-empty .icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 0.5px solid rgba(255,255,255,0.25);
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn.active {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border-color: rgba(255,255,255,0.4);
+  }
+
+  /* Stats strip */
+  .stats-strip {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+  .stat-box {
+    flex: 1;
+    background: rgba(0,0,0,0.2);
+    border: 0.5px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius-md);
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .stat-num { font-size: 20px; font-weight: 600; color: #fff; display: block; }
+  .stat-label { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* History list */
+  .history-day {
+    background: rgba(0,0,0,0.2);
+    border: 0.5px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius-lg);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .history-day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .history-day-header:hover { background: rgba(255,255,255,0.05); }
+  .history-date { font-size: 14px; font-weight: 500; color: #fff; }
+  .history-date-sub { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+  .history-score {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .score-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .score-full { background: rgba(100,200,100,0.25); color: #7ddf7d; }
+  .score-partial { background: rgba(255,200,50,0.2); color: #ffd966; }
+  .score-none { background: rgba(255,80,80,0.2); color: #ff8080; }
+  .chevron {
+    width: 16px; height: 16px;
+    border-right: 2px solid rgba(255,255,255,0.35);
+    border-bottom: 2px solid rgba(255,255,255,0.35);
+    transform: rotate(45deg);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .history-day.open .chevron { transform: rotate(-135deg); }
+
+  .history-pills {
+    display: none;
+    padding: 0 14px 12px;
+    border-top: 0.5px solid rgba(255,255,255,0.08);
+  }
+  .history-day.open .history-pills { display: block; }
+  .history-pill-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+  }
+  .history-pill-row:last-child { border-bottom: none; }
+  .hp-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .hp-dot.taken { background: #6699FF; }
+  .hp-dot.missed { background: rgba(255,255,255,0.2); }
+  .hp-name { font-size: 13px; color: #fff; flex: 1; }
+  .hp-dose { font-size: 11px; color: rgba(255,255,255,0.45); }
+  .hp-status { font-size: 11px; }
+  .hp-status.taken { color: #7ddf7d; }
+  .hp-status.missed { color: rgba(255,255,255,0.35); }
+
+  /* Mini calendar */
+  .mini-cal { margin-bottom: 1.25rem; }
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .cal-title { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); }
+  .cal-nav { background: transparent; border: none; color: rgba(255,255,255,0.5); font-size: 18px; cursor: pointer; padding: 2px 6px; }
+  .cal-nav:hover { color: #fff; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-dow {
+    text-align: center;
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    padding: 4px 0;
+    text-transform: uppercase;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    cursor: default;
+    position: relative;
+  }
+  .cal-day.has-data { cursor: pointer; }
+  .cal-day.full { background: rgba(100,200,100,0.2); color: #7ddf7d; font-weight: 600; }
+  .cal-day.partial { background: rgba(255,200,50,0.15); color: #ffd966; }
+  .cal-day.missed-all { background: rgba(255,80,80,0.15); color: #ff8080; }
+  .cal-day.today { outline: 1.5px solid rgba(255,255,255,0.4); }
+  .cal-day.empty { background: transparent; }
+  .cal-day.selected { outline: 2px solid var(--blue-accent); }
+  .cal-legend {
+    display: flex; gap: 12px; justify-content: center;
+    margin-top: 8px; flex-wrap: wrap;
+  }
+  .cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.45); }
+  .cal-legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  /* Page views */
+  #todayView {}
+</style>
+</head>
+<body>
+<div class="app">
+  <h2 style="position:absolute;left:-9999px">Günlük ilaç takip uygulaması</h2>
+
+  <div class="header">
+    <h1>İlaç Takibi</h1>
+    <p id="dateLabel"></p>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('today')">Bugün</button>
+    <button class="tab-btn" onclick="showTab('history')">Geçmiş</button>
+  </div>
+
+  <!-- ══ BUGÜN ══ -->
+  <div id="todayView">
+    <div class="alarm-banner" id="alarmBanner"></div>
+
+    <div class="alarm-info">
+      <div class="alarm-badge"><strong>10:00</strong>Sabah alarmı</div>
+      <div class="alarm-badge"><strong>23:00</strong>Akşam alarmı</div>
+    </div>
+
+    <div class="status-card">
+      <span class="status-count" id="statusCount">0/4</span>
+      bugün içilen ilaç
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+
+    <div class="all-done" id="allDone">Tüm ilaçları aldın, harika! 🎉</div>
+
+    <div class="pill-group">
+      <div class="section-label">Sabah ilaçları — 10:00</div>
+      <div class="pill-card" data-id="0" onclick="toggle(0)">
+        <div class="check-circle"><div class="checkmark"></div></div>
+        <div class="pill-info"><div class="pill-name">Coversyl</div><div class="pill-dose">2.5 mg — Sabah</div></div>
+      </div>
+      <div class="pill-card" data-id="1" onclick="toggle(1)">
+        <div class="check-circle"><div class="checkmark"></div></div>
+        <div class="pill-info"><div class="pill-name">Ecopirin</div><div class="pill-dose">100 mg — Sabah</div></div>
+      </div>
+      <div class="pill-card" data-id="2" onclick="toggle(2)">
+        <div class="check-circle"><div class="checkmark"></div></div>
+        <div class="pill-info"><div class="pill-name">Sugvida</div><div class="pill-dose">10 mg — Sabah</div></div>
+      </div>
+    </div>
+
+    <div class="pill-group">
+      <div class="section-label">Akşam ilacı — 23:00</div>
+      <div class="pill-card" data-id="3" onclick="toggle(3)">
+        <div class="check-circle"><div class="checkmark"></div></div>
+        <div class="pill-info"><div class="pill-name">Alipza</div><div class="pill-dose">4 mg — Akşam</div></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="save-btn" onclick="saveDay()">Bugünü Kaydet</button>
+      <button class="reset-btn" onclick="askReset()">Bugünü Sıfırla</button>
+    </div>
+    <div class="saved-badge" id="savedBadge"></div>
+  </div>
+
+  <!-- ══ GEÇMİŞ ══ -->
+  <div id="historyView">
+
+    <!-- Stats -->
+    <div class="stats-strip">
+      <div class="stat-box">
+        <span class="stat-num" id="statDays">0</span>
+        <span class="stat-label">Kayıtlı Gün</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num" id="statFull">0</span>
+        <span class="stat-label">Tam Gün</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num" id="statRate">%0</span>
+        <span class="stat-label">Uyum</span>
+      </div>
+    </div>
+
+    <!-- Mini Calendar -->
+    <div class="mini-cal">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="calPrev()">‹</button>
+        <span class="cal-title" id="calTitle"></span>
+        <button class="cal-nav" onclick="calNext()">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend">
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(100,200,100,0.4)"></div>Tümü alındı</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(255,200,50,0.35)"></div>Eksik</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(255,80,80,0.3)"></div>Hiç alınmadı</div>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setFilter('all', this)">Tümü</button>
+      <button class="filter-btn" onclick="setFilter('full', this)">Tam ✓</button>
+      <button class="filter-btn" onclick="setFilter('partial', this)">Eksik</button>
+      <button class="filter-btn" onclick="setFilter('none', this)">Hiç</button>
+    </div>
+
+    <!-- History list -->
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<!-- Confirm overlay -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p>Emin misiniz?</p>
+    <small>Bugün işaretlenen tüm ilaçlar sıfırlanacak.</small>
+    <div class="confirm-btns">
+      <button class="confirm-yes" onclick="confirmReset()">Evet, Sıfırla</button>
+      <button class="confirm-no" onclick="cancelReset()">İptal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'ilac_takip_v6';
+const TOTAL = 4;
+const PILLS = [
+  { name: 'Coversyl', dose: '2.5 mg', time: 'Sabah' },
+  { name: 'Ecopirin', dose: '100 mg', time: 'Sabah' },
+  { name: 'Sugvida',  dose: '10 mg',  time: 'Sabah' },
+  { name: 'Alipza',   dose: '4 mg',   time: 'Akşam' },
+];
+const DAYS_TR   = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+const MONTHS_TR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const MONTHS_SHORT = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+function todayKey() { return new Date().toISOString().slice(0,10); }
+
+function loadAll() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveAll(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+// Migration: upgrade old v5 key if exists
+(function migrate() {
+  try {
+    const old = localStorage.getItem('ilac_takip_v5');
+    if (old) {
+      const p = JSON.parse(old);
+      if (p.date && p.taken) {
+        const all = loadAll();
+        if (!all[p.date]) { all[p.date] = p.taken; saveAll(all); }
+      }
+    }
+  } catch(e) {}
+})();
+
+let allData = loadAll();
+let todayState = allData[todayKey()] ? [...allData[todayKey()]] : [false,false,false,false];
+let lastAlarm = null;
+let currentFilter = 'all';
+let calYear, calMonth;
+
+(function initCal() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+})();
+
+// ─── TODAY TAB ────────────────────────────────────────────────────────────────
+function render() {
+  const count = todayState.filter(Boolean).length;
+  document.getElementById('statusCount').textContent = count + '/' + TOTAL;
+  document.getElementById('progressBar').style.width = (count/TOTAL*100) + '%';
+  document.getElementById('allDone').style.display = count === TOTAL ? 'block' : 'none';
+  todayState.forEach((taken, i) => {
+    const card = document.querySelector('[data-id="'+i+'"]');
+    if (!card) return;
+    if (taken) card.classList.add('taken');
+    else card.classList.remove('taken');
+  });
+}
+
+function toggle(id) {
+  todayState[id] = !todayState[id];
+  render();
+}
+
+function saveDay() {
+  allData[todayKey()] = [...todayState];
+  saveAll(allData);
+  const badge = document.getElementById('savedBadge');
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  badge.textContent = 'Son kayıt: ' + t;
+  badge.style.display = 'block';
+}
+
+function askReset() { document.getElementById('confirmOverlay').classList.add('show'); }
+function cancelReset() { document.getElementById('confirmOverlay').classList.remove('show'); }
+function confirmReset() {
+  todayState = [false,false,false,false];
+  delete allData[todayKey()];
+  saveAll(allData);
+  document.getElementById('savedBadge').style.display = 'none';
+  document.getElementById('confirmOverlay').classList.remove('show');
+  render();
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+let activeTab = 'today';
+function showTab(tab) {
+  activeTab = tab;
+  document.getElementById('todayView').style.display  = tab === 'today'   ? '' : 'none';
+  document.getElementById('historyView').style.display = tab === 'history' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && tab === 'today') || (i === 1 && tab === 'history'));
+  });
+  if (tab === 'history') renderHistory();
+}
+
+// ─── HISTORY TAB ──────────────────────────────────────────────────────────────
+function getScore(taken) {
+  const c = taken.filter(Boolean).length;
+  if (c === TOTAL) return 'full';
+  if (c === 0) return 'none';
+  return 'partial';
+}
+
+function formatHistoryDate(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  return {
+    main: DAYS_TR[dt.getDay()] + ', ' + d + ' ' + MONTHS_TR[m-1],
+    sub: y,
+    short: d + ' ' + MONTHS_SHORT[m-1],
+  };
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistoryList();
+}
+
+function renderHistory() {
+  renderStats();
+  renderCalendar();
+  renderHistoryList();
+}
+
+function renderStats() {
+  const keys = Object.keys(allData).filter(k => k !== todayKey() || allData[k].some(Boolean));
+  const total = keys.length;
+  const full  = keys.filter(k => allData[k].filter(Boolean).length === TOTAL).length;
+  const rate  = total ? Math.round(full / total * 100) : 0;
+  document.getElementById('statDays').textContent = total;
+  document.getElementById('statFull').textContent = full;
+  document.getElementById('statRate').textContent = '%' + rate;
+}
+
+function renderCalendar() {
+  const now = new Date();
+  const title = MONTHS_TR[calMonth] + ' ' + calYear;
+  document.getElementById('calTitle').textContent = title;
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  const dows = ['Pt','Sa','Ça','Pe','Cu','Ct','Pz'];
+  dows.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  // First day of month (Mon=0)
+  const firstDay = new Date(calYear, calMonth, 1);
+  let startDow = firstDay.getDay(); // 0=Sun
+  startDow = (startDow === 0) ? 6 : startDow - 1; // Mon=0
+
+  for (let i = 0; i < startDow; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day empty';
+    grid.appendChild(el);
+  }
+
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const todayStr = todayKey();
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.textContent = d;
+
+    if (dateStr === todayStr) el.classList.add('today');
+
+    const rec = allData[dateStr];
+    if (rec) {
+      const score = getScore(rec);
+      el.classList.add(score === 'full' ? 'full' : score === 'none' ? 'missed-all' : 'partial');
+      el.classList.add('has-data');
+      el.onclick = () => scrollToDate(dateStr);
+    }
+
+    grid.appendChild(el);
+  }
+}
+
+function calPrev() {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+function calNext() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+function scrollToDate(dateStr) {
+  // Switch filter to all and scroll
+  currentFilter = 'all';
+  document.querySelectorAll('.filter-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  renderHistoryList();
+  setTimeout(() => {
+    const el = document.getElementById('hday-' + dateStr);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('open'); }
+  }, 50);
+}
+
+function renderHistoryList() {
+  const list = document.getElementById('historyList');
+
+  const keys = Object.keys(allData)
+    .filter(k => {
+      if (k === todayKey()) return false; // today shown separately
+      const score = getScore(allData[k]);
+      if (currentFilter === 'all') return true;
+      return score === currentFilter;
+    })
+    .sort((a, b) => b.localeCompare(a)); // newest first
+
+  if (keys.length === 0) {
+    list.innerHTML = '<div class="history-empty"><div class="icon">📋</div>' +
+      (Object.keys(allData).length === 0
+        ? 'Henüz kaydedilmiş gün yok.<br><small>Bugünü kaydetmek için "Bugün" sekmesini kullan.</small>'
+        : 'Bu filtre için kayıt bulunamadı.') +
+      '</div>';
+    return;
+  }
+
+  list.innerHTML = keys.map(dateStr => {
+    const taken = allData[dateStr];
+    const count = taken.filter(Boolean).length;
+    const score = getScore(taken);
+    const { main, sub } = formatHistoryDate(dateStr);
+
+    const badgeClass = score === 'full' ? 'score-full' : score === 'none' ? 'score-none' : 'score-partial';
+    const badgeText  = count + '/' + TOTAL;
+
+    const pillRows = PILLS.map((p, i) => {
+      const ok = taken[i];
+      return `<div class="history-pill-row">
+        <div class="hp-dot ${ok ? 'taken' : 'missed'}"></div>
+        <div class="hp-name">${p.name}</div>
+        <div class="hp-dose">${p.dose}</div>
+        <div class="hp-status ${ok ? 'taken' : 'missed'}">${ok ? 'Alındı ✓' : 'Alınmadı'}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="history-day" id="hday-${dateStr}">
+      <div class="history-day-header" onclick="toggleDay('hday-${dateStr}')">
+        <div>
+          <div class="history-date">${main}</div>
+          <div class="history-date-sub">${sub}</div>
+        </div>
+        <div class="history-score">
+          <span class="score-badge ${badgeClass}">${badgeText}</span>
+          <div class="chevron"></div>
+        </div>
+      </div>
+      <div class="history-pills">${pillRows}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDay(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ─── ALARM ────────────────────────────────────────────────────────────────────
+function checkAlarm() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  const key = h + ':' + m;
+  const banner = document.getElementById('alarmBanner');
+  if (h === 10 && m === 0 && lastAlarm !== key) {
+    lastAlarm = key;
+    banner.textContent = '⏰ Sabah İlaçlarını Almayı Unutma!';
+    banner.style.display = 'block';
+    setTimeout(() => { banner.style.display = 'none'; }, 60000);
+  } else if (h === 23 && m === 0 && lastAlarm !== key) {
+    lastAlarm = key;
+    banner.textContent = '⏰ Akşam İlacını Almayı Unutma!';
+    banner.style.display = 'block';
+    setTimeout(() => { banner.style.display = 'none'; }, 60000);
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+const now = new Date();
+document.getElementById('dateLabel').textContent =
+  DAYS_TR[now.getDay()] + ', ' + now.getDate() + ' ' + MONTHS_TR[now.getMonth()] + ' ' + now.getFullYear();
+
+// Show saved badge if today has data
+if (allData[todayKey()]) {
+  const badge = document.getElementById('savedBadge');
+  badge.textContent = 'Kayıtlı veriler yüklendi';
+  badge.style.display = 'block';
+}
+
+render();
+checkAlarm();
+setInterval(checkAlarm, 30000);
+</script>
+</body>
+</html>
