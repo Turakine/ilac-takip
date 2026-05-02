@@ -14,7 +14,6 @@
     --blue-accent: #6699FF;
     --radius-lg: 16px;
     --radius-md: 10px;
-    --font: 'Georgia', serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #5a1010; display: flex; justify-content: center; }
@@ -238,9 +237,7 @@
     font-size: 13px; cursor: pointer;
   }
 
-  /* ══════════════════════════════
-     GEÇMİŞ SAYFASI
-  ══════════════════════════════ */
+  /* ══ GEÇMİŞ SAYFASI ══ */
   #historyView { display: none; }
 
   .history-empty {
@@ -251,7 +248,6 @@
   }
   .history-empty .icon { font-size: 40px; margin-bottom: 12px; }
 
-  /* Filter bar */
   .filter-bar {
     display: flex;
     gap: 6px;
@@ -274,7 +270,6 @@
     border-color: rgba(255,255,255,0.4);
   }
 
-  /* Stats strip */
   .stats-strip {
     display: flex;
     gap: 8px;
@@ -291,7 +286,6 @@
   .stat-num { font-size: 20px; font-weight: 600; color: #fff; display: block; }
   .stat-label { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
 
-  /* History list */
   .history-day {
     background: rgba(0,0,0,0.2);
     border: 0.5px solid rgba(255,255,255,0.12);
@@ -310,16 +304,10 @@
   .history-day-header:hover { background: rgba(255,255,255,0.05); }
   .history-date { font-size: 14px; font-weight: 500; color: #fff; }
   .history-date-sub { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
-  .history-score {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .history-score { display: flex; align-items: center; gap: 8px; }
   .score-badge {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
   }
   .score-full { background: rgba(100,200,100,0.25); color: #7ddf7d; }
   .score-partial { background: rgba(255,200,50,0.2); color: #ffd966; }
@@ -348,11 +336,7 @@
     border-bottom: 0.5px solid rgba(255,255,255,0.06);
   }
   .history-pill-row:last-child { border-bottom: none; }
-  .hp-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
+  .hp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .hp-dot.taken { background: #6699FF; }
   .hp-dot.missed { background: rgba(255,255,255,0.2); }
   .hp-name { font-size: 13px; color: #fff; flex: 1; }
@@ -361,20 +345,14 @@
   .hp-status.taken { color: #7ddf7d; }
   .hp-status.missed { color: rgba(255,255,255,0.35); }
 
-  /* Mini calendar */
+  /* Mini Calendar */
   .mini-cal { margin-bottom: 1.25rem; }
   .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
   .cal-title { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); }
   .cal-nav { background: transparent; border: none; color: rgba(255,255,255,0.5); font-size: 18px; cursor: pointer; padding: 2px 6px; }
   .cal-nav:hover { color: #fff; }
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-  .cal-dow {
-    text-align: center;
-    font-size: 10px;
-    color: rgba(255,255,255,0.35);
-    padding: 4px 0;
-    text-transform: uppercase;
-  }
+  .cal-dow { text-align: center; font-size: 10px; color: rgba(255,255,255,0.35); padding: 4px 0; text-transform: uppercase; }
   .cal-day {
     aspect-ratio: 1;
     border-radius: 8px;
@@ -384,7 +362,6 @@
     font-size: 12px;
     color: rgba(255,255,255,0.5);
     cursor: default;
-    position: relative;
   }
   .cal-day.has-data { cursor: pointer; }
   .cal-day.full { background: rgba(100,200,100,0.2); color: #7ddf7d; font-weight: 600; }
@@ -392,21 +369,13 @@
   .cal-day.missed-all { background: rgba(255,80,80,0.15); color: #ff8080; }
   .cal-day.today { outline: 1.5px solid rgba(255,255,255,0.4); }
   .cal-day.empty { background: transparent; }
-  .cal-day.selected { outline: 2px solid var(--blue-accent); }
-  .cal-legend {
-    display: flex; gap: 12px; justify-content: center;
-    margin-top: 8px; flex-wrap: wrap;
-  }
+  .cal-legend { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
   .cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.45); }
   .cal-legend-dot { width: 8px; height: 8px; border-radius: 2px; }
-
-  /* Page views */
-  #todayView {}
 </style>
 </head>
 <body>
 <div class="app">
-  <h2 style="position:absolute;left:-9999px">Günlük ilaç takip uygulaması</h2>
 
   <div class="header">
     <h1>İlaç Takibi</h1>
@@ -415,7 +384,7 @@
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('today')">Bugün</button>
+    <button class="tab-btn" onclick="showTab('today')">Bugün</button>
     <button class="tab-btn" onclick="showTab('history')">Geçmiş</button>
   </div>
 
@@ -473,7 +442,6 @@
   <!-- ══ GEÇMİŞ ══ -->
   <div id="historyView">
 
-    <!-- Stats -->
     <div class="stats-strip">
       <div class="stat-box">
         <span class="stat-num" id="statDays">0</span>
@@ -489,7 +457,6 @@
       </div>
     </div>
 
-    <!-- Mini Calendar -->
     <div class="mini-cal">
       <div class="cal-header">
         <button class="cal-nav" onclick="calPrev()">‹</button>
@@ -504,7 +471,6 @@
       </div>
     </div>
 
-    <!-- Filter -->
     <div class="filter-bar">
       <button class="filter-btn active" onclick="setFilter('all', this)">Tümü</button>
       <button class="filter-btn" onclick="setFilter('full', this)">Tam ✓</button>
@@ -512,7 +478,6 @@
       <button class="filter-btn" onclick="setFilter('none', this)">Hiç</button>
     </div>
 
-    <!-- History list -->
     <div id="historyList"></div>
   </div>
 </div>
@@ -530,7 +495,6 @@
 </div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────────────────────────────────
 const STORAGE_KEY = 'ilac_takip_v6';
 const TOTAL = 4;
 const PILLS = [
@@ -539,21 +503,15 @@ const PILLS = [
   { name: 'Sugvida',  dose: '10 mg',  time: 'Sabah' },
   { name: 'Alipza',   dose: '4 mg',   time: 'Akşam' },
 ];
-const DAYS_TR   = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
-const MONTHS_TR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const DAYS_TR    = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+const MONTHS_TR  = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
 const MONTHS_SHORT = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
 function todayKey() { return new Date().toISOString().slice(0,10); }
+function loadAll() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { return {}; } }
+function saveAll(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} }
 
-function loadAll() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { return {}; }
-}
-function saveAll(data) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
-}
-
-// Migration: upgrade old v5 key if exists
+// Migration from v5
 (function migrate() {
   try {
     const old = localStorage.getItem('ilac_takip_v5');
@@ -579,24 +537,21 @@ let calYear, calMonth;
   calMonth = now.getMonth();
 })();
 
-// ─── TODAY TAB ────────────────────────────────────────────────────────────────
+// ── TODAY ──────────────────────────────────────────────────────────────────
 function render() {
   const count = todayState.filter(Boolean).length;
   document.getElementById('statusCount').textContent = count + '/' + TOTAL;
-  document.getElementById('progressBar').style.width = (count/TOTAL*100) + '%';
+  document.getElementById('progressBar').style.width = (count / TOTAL * 100) + '%';
   document.getElementById('allDone').style.display = count === TOTAL ? 'block' : 'none';
   todayState.forEach((taken, i) => {
-    const card = document.querySelector('[data-id="'+i+'"]');
+    const card = document.querySelector('[data-id="' + i + '"]');
     if (!card) return;
     if (taken) card.classList.add('taken');
     else card.classList.remove('taken');
   });
 }
 
-function toggle(id) {
-  todayState[id] = !todayState[id];
-  render();
-}
+function toggle(id) { todayState[id] = !todayState[id]; render(); }
 
 function saveDay() {
   allData[todayKey()] = [...todayState];
@@ -619,19 +574,27 @@ function confirmReset() {
   render();
 }
 
-// ─── TABS ─────────────────────────────────────────────────────────────────────
-let activeTab = 'today';
+// ── TABS ───────────────────────────────────────────────────────────────────
 function showTab(tab) {
-  activeTab = tab;
-  document.getElementById('todayView').style.display  = tab === 'today'   ? '' : 'none';
-  document.getElementById('historyView').style.display = tab === 'history' ? '' : 'none';
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', (i === 0 && tab === 'today') || (i === 1 && tab === 'history'));
-  });
-  if (tab === 'history') renderHistory();
+  const todayView   = document.getElementById('todayView');
+  const historyView = document.getElementById('historyView');
+  const btns = document.querySelectorAll('.tab-btn');
+
+  if (tab === 'today') {
+    todayView.style.display   = 'block';
+    historyView.style.display = 'none';
+    btns[0].classList.add('active');
+    btns[1].classList.remove('active');
+  } else {
+    todayView.style.display   = 'none';
+    historyView.style.display = 'block';
+    btns[0].classList.remove('active');
+    btns[1].classList.add('active');
+    renderHistory();
+  }
 }
 
-// ─── HISTORY TAB ──────────────────────────────────────────────────────────────
+// ── HISTORY ────────────────────────────────────────────────────────────────
 function getScore(taken) {
   const c = taken.filter(Boolean).length;
   if (c === TOTAL) return 'full';
@@ -645,7 +608,6 @@ function formatHistoryDate(dateStr) {
   return {
     main: DAYS_TR[dt.getDay()] + ', ' + d + ' ' + MONTHS_TR[m-1],
     sub: y,
-    short: d + ' ' + MONTHS_SHORT[m-1],
   };
 }
 
@@ -663,7 +625,7 @@ function renderHistory() {
 }
 
 function renderStats() {
-  const keys = Object.keys(allData).filter(k => k !== todayKey() || allData[k].some(Boolean));
+  const keys = Object.keys(allData);
   const total = keys.length;
   const full  = keys.filter(k => allData[k].filter(Boolean).length === TOTAL).length;
   const rate  = total ? Math.round(full / total * 100) : 0;
@@ -673,26 +635,19 @@ function renderStats() {
 }
 
 function renderCalendar() {
-  const now = new Date();
-  const title = MONTHS_TR[calMonth] + ' ' + calYear;
-  document.getElementById('calTitle').textContent = title;
-
+  document.getElementById('calTitle').textContent = MONTHS_TR[calMonth] + ' ' + calYear;
   const grid = document.getElementById('calGrid');
   grid.innerHTML = '';
 
-  const dows = ['Pt','Sa','Ça','Pe','Cu','Ct','Pz'];
-  dows.forEach(d => {
+  ['Pt','Sa','Ça','Pe','Cu','Ct','Pz'].forEach(d => {
     const el = document.createElement('div');
     el.className = 'cal-dow';
     el.textContent = d;
     grid.appendChild(el);
   });
 
-  // First day of month (Mon=0)
-  const firstDay = new Date(calYear, calMonth, 1);
-  let startDow = firstDay.getDay(); // 0=Sun
-  startDow = (startDow === 0) ? 6 : startDow - 1; // Mon=0
-
+  let startDow = new Date(calYear, calMonth, 1).getDay();
+  startDow = startDow === 0 ? 6 : startDow - 1;
   for (let i = 0; i < startDow; i++) {
     const el = document.createElement('div');
     el.className = 'cal-day empty';
@@ -707,9 +662,7 @@ function renderCalendar() {
     const el = document.createElement('div');
     el.className = 'cal-day';
     el.textContent = d;
-
     if (dateStr === todayStr) el.classList.add('today');
-
     const rec = allData[dateStr];
     if (rec) {
       const score = getScore(rec);
@@ -717,7 +670,6 @@ function renderCalendar() {
       el.classList.add('has-data');
       el.onclick = () => scrollToDate(dateStr);
     }
-
     grid.appendChild(el);
   }
 }
@@ -734,9 +686,8 @@ function calNext() {
 }
 
 function scrollToDate(dateStr) {
-  // Switch filter to all and scroll
   currentFilter = 'all';
-  document.querySelectorAll('.filter-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.querySelectorAll('.filter-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
   renderHistoryList();
   setTimeout(() => {
     const el = document.getElementById('hday-' + dateStr);
@@ -749,12 +700,11 @@ function renderHistoryList() {
 
   const keys = Object.keys(allData)
     .filter(k => {
-      if (k === todayKey()) return false; // today shown separately
       const score = getScore(allData[k]);
       if (currentFilter === 'all') return true;
       return score === currentFilter;
     })
-    .sort((a, b) => b.localeCompare(a)); // newest first
+    .sort((a, b) => b.localeCompare(a));
 
   if (keys.length === 0) {
     list.innerHTML = '<div class="history-empty"><div class="icon">📋</div>' +
@@ -770,10 +720,7 @@ function renderHistoryList() {
     const count = taken.filter(Boolean).length;
     const score = getScore(taken);
     const { main, sub } = formatHistoryDate(dateStr);
-
     const badgeClass = score === 'full' ? 'score-full' : score === 'none' ? 'score-none' : 'score-partial';
-    const badgeText  = count + '/' + TOTAL;
-
     const pillRows = PILLS.map((p, i) => {
       const ok = taken[i];
       return `<div class="history-pill-row">
@@ -791,7 +738,7 @@ function renderHistoryList() {
           <div class="history-date-sub">${sub}</div>
         </div>
         <div class="history-score">
-          <span class="score-badge ${badgeClass}">${badgeText}</span>
+          <span class="score-badge ${badgeClass}">${count}/${TOTAL}</span>
           <div class="chevron"></div>
         </div>
       </div>
@@ -800,11 +747,9 @@ function renderHistoryList() {
   }).join('');
 }
 
-function toggleDay(id) {
-  document.getElementById(id).classList.toggle('open');
-}
+function toggleDay(id) { document.getElementById(id).classList.toggle('open'); }
 
-// ─── ALARM ────────────────────────────────────────────────────────────────────
+// ── ALARM ──────────────────────────────────────────────────────────────────
 function checkAlarm() {
   const now = new Date();
   const h = now.getHours(), m = now.getMinutes();
@@ -823,18 +768,19 @@ function checkAlarm() {
   }
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
+// ── INIT ───────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent =
   DAYS_TR[now.getDay()] + ', ' + now.getDate() + ' ' + MONTHS_TR[now.getMonth()] + ' ' + now.getFullYear();
 
-// Show saved badge if today has data
 if (allData[todayKey()]) {
   const badge = document.getElementById('savedBadge');
   badge.textContent = 'Kayıtlı veriler yüklendi';
   badge.style.display = 'block';
 }
 
+// ✅ DÜZELTME: Başlangıçta bugün sekmesini doğru aç
+showTab('today');
 render();
 checkAlarm();
 setInterval(checkAlarm, 30000);
